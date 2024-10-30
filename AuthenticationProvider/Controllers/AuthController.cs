@@ -1,6 +1,7 @@
 ﻿using AuthenticationProvider.Entities;
 using AuthenticationProvider.Models;
 using AuthenticationProvider.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -71,5 +72,13 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
         var token = _tokenService.GenerateJwtToken(user);
         // return the token
         return Ok(new { Token = token });
+    }
+
+    [HttpGet("test")]
+    [Authorize]
+    public IActionResult Test()
+    {
+        // return ok if the user is authorized
+        return Ok("SUCCESS!?");
     }
 }
