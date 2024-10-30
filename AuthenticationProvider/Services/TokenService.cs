@@ -34,7 +34,7 @@ public class TokenService(IConfiguration configuration)
             issuer: _issuer,
             audience: _audience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.Now.AddDays(15),
             signingCredentials: credentials
         );
         // return the token as a string
