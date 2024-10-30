@@ -6,18 +6,11 @@ using System.Text;
 
 namespace AuthenticationProvider.Services;
 
-public class TokenService
+public class TokenService(IConfiguration configuration)
 {
-    private readonly string _secretKey;
-    private readonly string _issuer;
-    private readonly string _audience;
-
-    public TokenService(IConfiguration configuration)
-    {
-        _secretKey = configuration["Jwt:SecretKey"]!;
-        _issuer = configuration["Jwt:Issuer"]!;
-        _audience = configuration["Jwt:Audience"]!;
-    }
+    private readonly string _secretKey = configuration["Jwt:SecretKey"]!;
+    private readonly string _issuer = configuration["Jwt:Issuer"]!;
+    private readonly string _audience = configuration["Jwt:Audience"]!;
 
     public string GenerateJwtToken(UserEntity user)
     {
