@@ -7,7 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="microsoft.aspnetcore.authentication.jwtbearer" Version="8.0.10" />
+    <PackageReference Include="microsoft.aspnetcore.identity.entityframeworkcore" Version="8.0.10" />
+    <PackageReference Include="microsoft.aspnetcore.identity.ui" Version="8.0.10" />
+    <PackageReference Include="microsoft.entityframeworkcore" Version="8.0.10" />
+    <PackageReference Include="microsoft.entityframeworkcore.design" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="microsoft.entityframeworkcore.sqlserver" Version="8.0.10" />
+    <PackageReference Include="microsoft.entityframeworkcore.tools" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+    <Folder Include="Factories\" />
   </ItemGroup>
 
 </Project>
