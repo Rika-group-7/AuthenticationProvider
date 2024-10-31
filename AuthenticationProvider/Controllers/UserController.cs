@@ -20,7 +20,7 @@ public class UserController : ControllerBase
     }
 
     //get all users med BARA: ID, FirstName,LastName och Email, eftersom en admin behöver inte se all information innan den trycker på en specifik user
-    [HttpGet]
+    [HttpGet("getallusers")]
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await _userManager.Users.ToListAsync();
@@ -37,7 +37,7 @@ public class UserController : ControllerBase
     }
 
     //hämtar en user med ID
-    [HttpGet("{id}")]
+    [HttpGet("getbyid{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -63,7 +63,7 @@ public class UserController : ControllerBase
     }
 
     //hämtar en user med Epost
-    [HttpGet("email/{email}")]
+    [HttpGet("getbyemail{email}")]
     public async Task<IActionResult> GetUserByEmail(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
@@ -89,7 +89,7 @@ public class UserController : ControllerBase
     }
 
     //updatera användaren
-    [HttpPut("{id}")]
+    [HttpPut("updatebyid{id}")]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] UserDto userDto)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -117,7 +117,7 @@ public class UserController : ControllerBase
     }
 
     //delete user
-    [HttpDelete("{id}")]
+    [HttpDelete("deletebyid{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
