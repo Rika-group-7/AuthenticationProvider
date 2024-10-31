@@ -4,9 +4,24 @@ Hantera autentisering av användare. Detta kan inkludera traditionella inloggnin
 
 ## ENDPOINTS:
 
-### /api/Auth/signup
+### POST:
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/Auth/signup
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/Auth/signin
 
-### /api/Auth/signin
+
+### GET:
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getself
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getallusers
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getbyid/ UserId here
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getbyemail/ email here
+
+
+### PUT:
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/updatebyid/ UserId here
+
+
+### DELETE:
+#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/deletebyid/ UserId here
 
 
 ## Models:
@@ -38,3 +53,21 @@ public class SignInModel
     "token": "Din-personliga-token"
 }
 ``
+
+## DTOs:
+
+UserDto
+```
+public class UserDto
+{
+    public string Id { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public bool IsAdmin { get; set; }
+    public string? ProfilePictureUrl { get; set; }
+    public string? ProfileDescription { get; set; }
+    public string? Gender { get; set; }
+    public int? Age { get; set; }
+}
+```
