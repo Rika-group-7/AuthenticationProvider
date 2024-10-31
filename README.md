@@ -5,23 +5,23 @@ Hantera autentisering av användare. Detta kan inkludera traditionella inloggnin
 ## ENDPOINTS:
 
 ### POST:
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/Auth/signup
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/Auth/signin
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/Auth/signup
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/Auth/signin
 
 
 ### GET:
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getself
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getallusers
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getbyid/ UserId here
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getbyemail/ email here
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getself
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getallusers
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getbyid/ UserId here
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/getbyemail/ email here
 
 
 ### PUT:
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/updatebyid/ UserId here
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/updatebyid/ UserId here
 
 
 ### DELETE:
-#### rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/deletebyid/ UserId here
+#### https://rika-authenticationprovider-drfta9bhdaf0g0dr.westeurope-01.azurewebsites.net/api/User/deletebyid/ UserId here
 
 
 ## Models:
