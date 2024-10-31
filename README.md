@@ -28,8 +28,8 @@ public class SignInModel
 }
 ```
 **Svar:** 200 OK och:
-```
+``
 {
     "token": "Din-personliga-token"
 }
-```
+``
