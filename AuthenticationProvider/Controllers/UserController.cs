@@ -1,9 +1,11 @@
 ﻿using AuthenticationProvider.DTOs;
 using AuthenticationProvider.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AuthenticationProvider.Controllers;
@@ -18,6 +20,47 @@ public class UserController : ControllerBase
     {
         _userManager = userManager;
     }
+
+    [HttpGet("getself")]
+    [Authorize]
+    public async Task<IActionResult> GetSelf()
+    {
+        // Log all claims for debugging
+        //foreach (var claim in User.Claims)
+        //{
+        //    Console.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+        //}
+
+        // Extract the user ID from the JWT claims
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User ID not found in token.");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var userDto = new UserDto
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            IsAdmin = user.IsAdmin,
+            ProfilePictureUrl = user.ProfilePictureUrl,
+            ProfileDescription = user.ProfileDescription,
+            Gender = user.Gender,
+            Age = user.Age
+        };
+
+        return Ok(userDto);
+    }
+
 
     //get all users med BARA: ID, FirstName,LastName och Email, eftersom en admin behöver inte se all information innan den trycker på en specifik user
     [HttpGet("getallusers")]
@@ -49,7 +92,7 @@ public class UserController : ControllerBase
         var userDto = new UserDto
         {
             Id = user.Id,
-            Email = user.Email,
+            Email = user.Email!,
             FirstName = user.FirstName,
             LastName = user.LastName,
             IsAdmin = user.IsAdmin,
@@ -75,7 +118,7 @@ public class UserController : ControllerBase
         var userDto = new UserDto
         {
             Id = user.Id,
-            Email = user.Email,
+            Email = user.Email!,
             FirstName = user.FirstName,
             LastName = user.LastName,
             IsAdmin = user.IsAdmin,
