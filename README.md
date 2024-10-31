@@ -6,6 +6,11 @@ Hantera autentisering av användare. Detta kan inkludera traditionella inloggnin
 
 ### /api/Auth/signup
 
+### /api/Auth/signin
+
+
+## Models:
+
 SignUpModel:
 ```
 public class SignUpModel
