@@ -88,7 +88,7 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
     }
 
     [HttpGet("test")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public IActionResult Test()
     {
         // return ok if the user is authorized

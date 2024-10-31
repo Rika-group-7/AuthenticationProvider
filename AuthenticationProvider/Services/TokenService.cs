@@ -34,7 +34,7 @@ public class TokenService(IConfiguration configuration, UserManager<UserEntity> 
 
         // get the roles of the user and add them as claims
         var roles = await _userManager.GetRolesAsync(user);
-        claims.AddRange(roles.Select(role => new Claim("role", role)));
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
 
         // create a new token
