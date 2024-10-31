@@ -48,6 +48,23 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// create a scope to get the RoleManager
+using (var scope = app.Services.CreateScope())
+{
+    // get the RoleManager
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    // create the roles if they do not exist
+    var roles = new[] { "User", "Admin" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
 
 
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
