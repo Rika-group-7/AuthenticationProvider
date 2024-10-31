@@ -32,6 +32,7 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
             // return bad request if the user already exists
             return BadRequest("user already exists");
         }
+
         // create a new user if the user does not exist
         var user = new UserEntity
         {
@@ -39,13 +40,25 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
             UserName = signUpModel.Username,
             IsAdmin = signUpModel.IsAdmin
         };
+
         // create the user
         var result = await _userManager.CreateAsync(user, signUpModel.Password);
         if (result.Succeeded)
         {
+            // assign role based on the IsAdmin property, default is User
+            if (signUpModel.IsAdmin == true)
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
             // return ok if the user is created successfully
             return Ok("User created successfully");
         }
+
         // return bad request if the user is not created successfully
         return BadRequest(result.Errors);
     }
@@ -69,7 +82,7 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
             return Unauthorized("Invalid credentials");
         }
         // generate a token if the user exists and the password is correct
-        var token = _tokenService.GenerateJwtToken(user);
+        var token = await _tokenService.GenerateJwtToken(user);
         // return the token
         return Ok(new { Token = token });
     }
