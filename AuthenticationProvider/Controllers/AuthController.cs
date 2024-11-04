@@ -1,4 +1,5 @@
 ﻿using AuthenticationProvider.Entities;
+using AuthenticationProvider.Interfaces;
 using AuthenticationProvider.Models;
 using AuthenticationProvider.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +11,10 @@ namespace AuthenticationProvider.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(UserManager<UserEntity> userManager, TokenService tokenService) : ControllerBase
+public class AuthController(UserManager<UserEntity> userManager, ITokenService tokenService) : ControllerBase
 {
     private readonly UserManager<UserEntity> _userManager = userManager;
-    private readonly TokenService _tokenService = tokenService;
+    private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] SignUpModel signUpModel)
