@@ -59,7 +59,7 @@ public class TokenService_Tests
             Id = "1",
             Email = "test@testsson.com",
             UserName = "Testsson",
-            IsAdmin = true
+            IsAdmin = true // doesnt matter if user is admin or not
         };
 
         _userManagerMock.Setup(x => x.GetRolesAsync(testUser)).ReturnsAsync(new List<string> { "Admin" });
