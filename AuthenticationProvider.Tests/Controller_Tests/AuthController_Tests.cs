@@ -107,7 +107,7 @@ public class AuthController_Tests
     [Fact]
     public async Task SignIn_ShouldReturnOk_AndToken_IfUserExists()
     {
-        //arrange
+        //Arrange
         var signInModel = new SignInModel
         {
             Email = "test@testing.com",
@@ -124,16 +124,69 @@ public class AuthController_Tests
         _userManagerMock.Setup(x => x.CheckPasswordAsync(user, signInModel.Password)).ReturnsAsync(true);
         _tokenServiceMock.Setup(x => x.GenerateJwtToken(user)).ReturnsAsync("testtoken");
 
-        //act
+        //Act
+        var result = await _authController.SignIn(signInModel);
+
+        //Assert
         var actionResult = Assert.IsType<OkObjectResult>(result);
-
-        //assert
+        // get the value of the response
         var responseValue = actionResult.Value;
+        // get the token property from the response
         var tokenProperty = responseValue.GetType().GetProperty("Token");
+        // assert that the token property is not null
         Assert.NotNull(tokenProperty);
-
+        // get the value of the token property
         var token = tokenProperty.GetValue(responseValue) as string;
         Assert.NotNull(token);
         Assert.Equal("testtoken", token);
+    }
+
+    [Fact]
+    public async Task SignIn_ShouldReturnUnauthorized_ifUserDoesNotExist()
+    {
+        //Arrange
+        var signInModel = new SignInModel
+        {
+            Email = "test@testing.com",
+            Password = "TestPassword123!"
+        };
+        // mocks find by email to return null
+        _userManagerMock.Setup(x => x.FindByEmailAsync(signInModel.Email)).ReturnsAsync((UserEntity)null);
+
+        //Act
+        var result = await _authController.SignIn(signInModel);
+
+        //Assert
+        var actionResult = Assert.IsType<UnauthorizedObjectResult>(result);
+        Assert.Equal("Invalid credentials", actionResult.Value);
+    }
+
+    [Fact]
+    public async Task SignIn_ShouldReturnUnauthorized_ifPasswordIsIncorrect()
+    {
+        //Arrange
+        var signInModel = new SignInModel
+        {
+            Email = "test@testing.com",
+            Password = "TestPassword123!"
+        };
+
+        var user = new UserEntity
+        {
+            Email = signInModel.Email,
+            UserName = "xunittest"
+        };
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(signInModel.Email)).ReturnsAsync(user);
+        _userManagerMock.Setup(x => x.CheckPasswordAsync(user, signInModel.Password)).ReturnsAsync(false);
+
+
+        //Act
+        var result = await _authController.SignIn(signInModel);
+
+        //Assert
+        var actionResult = Assert.IsType<UnauthorizedObjectResult>(result);
+        Assert.Equal("Invalid credentials", actionResult.Value);
+
     }
 }
