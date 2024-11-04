@@ -12,4 +12,21 @@ public class UserEntity : IdentityUser
     public string? ProfileDescription { get; set; }
     public string? Gender { get; set; }
     public int? Age { get; set; }
+
+
+    // navigation for WishlistEntity
+    public WishlistEntity Wishlist { get; set; } = null!;
+}
+
+public class WishlistEntity
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string UserId { get; set; } = null!;
+
+
+    // Navigation property
+    public UserEntity User { get; set; } = null!;
+
+    //collection of Ids of the products
+    public ICollection<string> ProductIds { get; set; } = new List<string>();
 }
