@@ -28,5 +28,5 @@ public class WishlistEntity
     public UserEntity User { get; set; } = null!;
 
     //collection of Ids of the products
-    public ICollection<string> ProductIds { get; set; } = new List<string>();
+    public List<string> ProductIds { get; set; } = new List<string>();
 }

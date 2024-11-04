@@ -18,6 +18,7 @@ public class BaseRepo<TEntity>(DataContext context) : IBaseRepo<TEntity> where T
         {
             await _context.Set<TEntity>().AddAsync(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
         catch (Exception ex)
         {
