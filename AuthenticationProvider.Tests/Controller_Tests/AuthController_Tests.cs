@@ -1,11 +1,13 @@
 ﻿using AuthenticationProvider.Controllers;
 using AuthenticationProvider.Entities;
+using AuthenticationProvider.Interfaces;
 using AuthenticationProvider.Models;
 using AuthenticationProvider.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,7 @@ namespace AuthenticationProvider.Tests.Controller_Tests;
 public class AuthController_Tests
 {
     private readonly Mock<UserManager<UserEntity>> _userManagerMock;
-    private readonly Mock<TokenService> _tokenServiceMock;
+    private readonly Mock<ITokenService> _tokenServiceMock;
     private readonly AuthController _authController;
 
     public AuthController_Tests()
@@ -29,7 +31,7 @@ public class AuthController_Tests
         // create mock of configuration for the token service
         var configurationMock = new Mock<IConfiguration>();
         // create mock of token service, it needs configuration and usermanager
-        _tokenServiceMock = new Mock<TokenService>(configurationMock.Object, _userManagerMock.Object);
+        _tokenServiceMock = new Mock<ITokenService>();
         // create auth controller with the mocks
         _authController = new AuthController(_userManagerMock.Object, _tokenServiceMock.Object);
     }
@@ -123,10 +125,15 @@ public class AuthController_Tests
         _tokenServiceMock.Setup(x => x.GenerateJwtToken(user)).ReturnsAsync("testtoken");
 
         //act
-        var result = await _authController.SignIn(signInModel);
+        var actionResult = Assert.IsType<OkObjectResult>(result);
 
         //assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal("testtoken", actionResult.Value);
+        var responseValue = actionResult.Value;
+        var tokenProperty = responseValue.GetType().GetProperty("Token");
+        Assert.NotNull(tokenProperty);
+
+        var token = tokenProperty.GetValue(responseValue) as string;
+        Assert.NotNull(token);
+        Assert.Equal("testtoken", token);
     }
 }
