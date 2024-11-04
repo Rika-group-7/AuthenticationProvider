@@ -1,4 +1,5 @@
 ﻿using AuthenticationProvider.Entities;
+using AuthenticationProvider.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace AuthenticationProvider.Services;
 
-public class TokenService(IConfiguration configuration, UserManager<UserEntity> userManager)
+public class TokenService(IConfiguration configuration, UserManager<UserEntity> userManager) : ITokenService
 {
     // get the secret key, issuer and audience from the appsettings.json file
     private readonly string _secretKey = configuration["Jwt:SecretKey"]!;
