@@ -11,6 +11,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
+
+namespace AuthenticationProvider.Tests.Controller_Tests;
 public class UserControllerTests
 {
     private readonly Mock<UserManager<UserEntity>> _userManagerMock;
