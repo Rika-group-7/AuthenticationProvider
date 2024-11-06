@@ -1,5 +1,7 @@
 using AuthenticationProvider.Contexts;
 using AuthenticationProvider.Entities;
+using AuthenticationProvider.Interfaces;
+using AuthenticationProvider.Repositories;
 using AuthenticationProvider.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<TokenService>();
+//token service
+builder.Services.AddScoped<ITokenService, TokenService>();
+// wishlist service and repo
+builder.Services.AddScoped<IWishlistRepo, WishlistRepo>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
+
 
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
