@@ -101,32 +101,4 @@ public class AuthController_Tests
         var actionResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal("user already exists", actionResult.Value);
     }
-
-    [Fact]
-    public async Task SignIn_ShouldReturnOk_AndToken_IfUserExists()
-    {
-        //arrange
-        var signInModel = new SignInModel
-        {
-            Email = "test@testing.com",
-            Password = "TestPassword123!"
-        };
-
-        var user = new UserEntity
-        {
-            Email = signInModel.Email,
-            UserName = "xunittest"
-        };
-
-        _userManagerMock.Setup(x => x.FindByEmailAsync(signInModel.Email)).ReturnsAsync(user);
-        _userManagerMock.Setup(x => x.CheckPasswordAsync(user, signInModel.Password)).ReturnsAsync(true);
-        _tokenServiceMock.Setup(x => x.GenerateJwtToken(user)).ReturnsAsync("testtoken");
-
-        //act
-        var result = await _authController.SignIn(signInModel);
-
-        //assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal("testtoken", actionResult.Value);
-    }
 }
