@@ -11,10 +11,11 @@ namespace AuthenticationProvider.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(UserManager<UserEntity> userManager, ITokenService tokenService) : ControllerBase
+public class AuthController(UserManager<UserEntity> userManager, ITokenService tokenService, IVerificationService verificationService) : ControllerBase
 {
     private readonly UserManager<UserEntity> _userManager = userManager;
     private readonly ITokenService _tokenService = tokenService;
+    private readonly IVerificationService _verificationService = verificationService;
 
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] SignUpModel signUpModel)
@@ -42,10 +43,30 @@ public class AuthController(UserManager<UserEntity> userManager, ITokenService t
             IsAdmin = signUpModel.IsAdmin
         };
 
-        // create the user
         var result = await _userManager.CreateAsync(user, signUpModel.Password);
         if (result.Succeeded)
         {
+            // Generate EmailToken and save it with the user
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            user.EmailConfirmationToken = token;
+            await _userManager.UpdateAsync(user);
+
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
+            {
+                Console.WriteLine("Sending VerificationRequest");
+                try
+                {
+                    // Send email and token to VerificationProvider
+                    await _verificationService.SendVerificationRequest(user.Email, token);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed while Sending VerificationRequest: {ex.Message}");
+                    return BadRequest($"Failed while Sending VerificationRequest: {ex.Message}");
+                }
+            }
+
+
             // assign role based on the IsAdmin property, default is User
             if (signUpModel.IsAdmin == true)
             {

@@ -1,70 +1,54 @@
 ﻿using AuthenticationProvider.Interfaces;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace AuthenticationProvider.Services
+
+namespace AuthenticationProvider.Services;
+public class VerificationService(ServiceBusClient serviceBusClient) : IVerificationService
 {
-    public class VerificationService : IVerificationService
+    private readonly ServiceBusClient _serviceBusClient = serviceBusClient;
+
+    public async Task SendVerificationRequest(string email, string token)
     {
-        private readonly ServiceBusClient _serviceBusClient;
-        private readonly HttpClient _httpClient;
-        private readonly string _verificationApiUrl;
-
-        public VerificationService(ServiceBusClient serviceBusClient, HttpClient httpClient, IConfiguration configuration)
+        try
         {
-            _serviceBusClient = serviceBusClient;
-            _httpClient = httpClient;
+            await using var sender = _serviceBusClient.CreateSender("verification-queue");
 
-            // Read verification API URL from configuration
-            _verificationApiUrl = configuration["VerificationApiUrl"]!;
-            if (string.IsNullOrEmpty(_verificationApiUrl))
+            // Serialize the email and token
+            var emailJson = JsonSerializer.Serialize(new { Email = email, Token = token });
+            var message = new ServiceBusMessage(emailJson)
             {
-                throw new ArgumentNullException(nameof(_verificationApiUrl), "Verification API URL is not configured.");
-            }
+                ContentType = "application/json"
+            };
+
+            await sender.SendMessageAsync(message);
+            Console.WriteLine("Verification request sent successfully.");
         }
-
-        public async Task SendVerificationRequest(string email, string token)
+        catch (Exception ex)
         {
-            try
-            {
-                await using var sender = _serviceBusClient.CreateSender("verification-queue");
-
-                // Serialize the email and token
-                var emailJson = JsonSerializer.Serialize(new { Email = email, Token = token });
-                var message = new ServiceBusMessage(emailJson)
-                {
-                    ContentType = "application/json"
-                };
-
-                await sender.SendMessageAsync(message);
-                Console.WriteLine("Verification request sent successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending verification request: {ex.Message}");
-                throw;
-            }
+            Console.WriteLine($"Error sending verification request: {ex.Message}");
+            throw;
         }
+    }
 
-        public async Task<bool> ValidateVerificationCodeAsync(string email, string code)
+    public async Task<bool> ValidateVerificationCodeAsync(string email, string code)
+    {
+        try
         {
-            try
-            {
-                var validateRequest = new { Email = email, Code = code };
+            var client = new HttpClient();
 
-                var response = await _httpClient.PostAsJsonAsync(_verificationApiUrl, validateRequest);
+            var validateRequest = new { Email = email, Code = code };
 
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error validating verification code: {ex.Message}");
-                return false;
-            }
+            var requestUri = $"ValidateAPI";
+
+            var response = await client.PostAsJsonAsync(requestUri, validateRequest);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error validating verification code: {ex.Message}");
+            return false;
         }
     }
 }
