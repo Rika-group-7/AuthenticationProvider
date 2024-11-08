@@ -4,10 +4,17 @@ using System.Text.Json;
 
 
 namespace AuthenticationProvider.Services;
-public class VerificationService(ServiceBusClient serviceBusClient) : IVerificationService
+public class VerificationService : IVerificationService
 {
-    private readonly ServiceBusClient _serviceBusClient = serviceBusClient;
+    private readonly ServiceBusClient _serviceBusClient;
+    private readonly string _queueName;
 
+    public VerificationService(IConfiguration configuration)
+    {
+        var connectionString = configuration["ServiceBus:ConnectionString"];
+        _queueName = configuration["ServiceBus:QueueName"]!;
+        _serviceBusClient = new ServiceBusClient(connectionString);
+    }
 
     public async Task SendVerificationRequest(string email, string token)
     {

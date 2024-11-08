@@ -11,14 +11,26 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load configuration from local.appsettings.json for local development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile("local.appsettings.json", optional: true, reloadOnChange: true);
+}
+
+// Fetch Service Bus settings from configuration or environment variables
+var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionString"] ?? Environment.GetEnvironmentVariable("ServiceBus__ConnectionString");
+var serviceBusQueueName = builder.Configuration["ServiceBus:QueueName"] ?? Environment.GetEnvironmentVariable("ServiceBus__QueueName");
+
+// Fetch JWT settings from configuration or environment variables
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? Environment.GetEnvironmentVariable("Jwt__Issuer");
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("Jwt__Audience");
+var jwtSecretKey = builder.Configuration["Jwt:SecretKey"] ?? Environment.GetEnvironmentVariable("Jwt__SecretKey");
 
 
+// Register ServiceBusClient as a singleton service
 builder.Services.AddSingleton<ServiceBusClient>(sp =>
 {
-    var sbkey = Environment.GetEnvironmentVariable("ServiceBus:Key");
-    var connectionString = Environment.GetEnvironmentVariable("ServiceBus:ConnectionString");
-    var connectionStringwithkey = builder.Configuration[$"{connectionString}{sbkey}"];
-    return new ServiceBusClient(connectionStringwithkey);
+    return new ServiceBusClient(serviceBusConnectionString);
 });
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
