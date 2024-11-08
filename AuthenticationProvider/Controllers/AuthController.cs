@@ -1,19 +1,24 @@
 ﻿using AuthenticationProvider.Entities;
+using AuthenticationProvider.Interfaces;
 using AuthenticationProvider.Models;
 using AuthenticationProvider.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static System.Net.WebRequestMethods;
 
 namespace AuthenticationProvider.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(UserManager<UserEntity> userManager, TokenService tokenService) : ControllerBase
+public class AuthController(UserManager<UserEntity> userManager, ITokenService tokenService, IVerificationService verificationService) : ControllerBase
 {
     private readonly UserManager<UserEntity> _userManager = userManager;
-    private readonly TokenService _tokenService = tokenService;
+    private readonly ITokenService _tokenService = tokenService;
+    private readonly IVerificationService _verificationService = verificationService;
 
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] SignUpModel signUpModel)
@@ -41,10 +46,31 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
             IsAdmin = signUpModel.IsAdmin
         };
 
-        // create the user
         var result = await _userManager.CreateAsync(user, signUpModel.Password);
         if (result.Succeeded)
         {
+            // Generate EmailToken and save it with the user
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            user.EmailConfirmationToken = token;
+            await _userManager.UpdateAsync(user);
+
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
+            {
+                Console.WriteLine("Sending VerificationRequest");
+                try
+                {
+                    // Send email and token to VerificationProvider
+                    await _verificationService.SendVerificationRequest(user.Email, token);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed while Sending VerificationRequest: {ex.Message}");
+                    return BadRequest($"Failed while Sending VerificationRequest: {ex.Message}");
+                }
+            }
+            else Console.WriteLine("Fail to VerificationRequest");
+
+
             // assign role based on the IsAdmin property, default is User
             if (signUpModel.IsAdmin == true)
             {
@@ -56,7 +82,7 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
             }
 
             // return ok if the user is created successfully
-            return Ok("User created successfully");
+            return Ok(new { message = "User created successfully", userId = user.Id });
         }
 
         // return bad request if the user is not created successfully
@@ -93,5 +119,26 @@ public class AuthController(UserManager<UserEntity> userManager, TokenService to
     {
         // return ok if the user is authorized
         return Ok("SUCCESS!?");
+    }
+
+
+    [HttpPost("confirm")]
+    public async Task<IActionResult> ConfirmAccount([FromBody] ConfirmAccountModel model)
+    {
+        // Call VerificationProvider to validate the code
+        var isValid = await _verificationService.ValidateVerificationCodeAsync(model.Email, model.Code);
+
+        if (isValid)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                return Ok("Email confirmed successfully.");
+            }
+            return BadRequest("User not found.");
+        }
+        return BadRequest("Invalid verification code.");
     }
 }

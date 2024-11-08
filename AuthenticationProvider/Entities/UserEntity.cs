@@ -12,4 +12,5 @@ public class UserEntity : IdentityUser
     public string? ProfileDescription { get; set; }
     public string? Gender { get; set; }
     public int? Age { get; set; }
+    public string? EmailConfirmationToken { get; set; }
 }

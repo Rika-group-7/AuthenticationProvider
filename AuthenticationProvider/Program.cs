@@ -1,6 +1,8 @@
 using AuthenticationProvider.Contexts;
 using AuthenticationProvider.Entities;
+using AuthenticationProvider.Interfaces;
 using AuthenticationProvider.Services;
+using Azure.Messaging.ServiceBus;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,19 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 
+
+builder.Services.AddSingleton<ServiceBusClient>(sp =>
+{
+    var sbkey = Environment.GetEnvironmentVariable("ServiceBus:Key");
+    var connectionString = Environment.GetEnvironmentVariable("ServiceBus:ConnectionString");
+    var connectionStringwithkey = builder.Configuration[$"{connectionString}{sbkey}"];
+    return new ServiceBusClient(connectionStringwithkey);
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IVerificationService, VerificationService>();
 
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -25,7 +36,9 @@ builder.Services.AddIdentity<UserEntity, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 8;
     options.User.RequireUniqueEmail = true;
-}).AddEntityFrameworkStores<DataContext>();
+    options.SignIn.RequireConfirmedAccount = true;
+}).AddEntityFrameworkStores<DataContext>()
+.AddDefaultTokenProviders();
 
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!);
 builder.Services.AddAuthentication(options =>
