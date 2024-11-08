@@ -11,10 +11,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 builder.Services.AddSingleton<ServiceBusClient>(sp =>
 {
-    var connectionString = builder.Configuration["ServiceBus:ConnectionString"];
-    return new ServiceBusClient(connectionString);
+    var sbkey = Environment.GetEnvironmentVariable("ServiceBus:Key");
+    var connectionString = Environment.GetEnvironmentVariable("ServiceBus:ConnectionString");
+    var connectionStringwithkey = builder.Configuration[$"{connectionString}{sbkey}"];
+    return new ServiceBusClient(connectionStringwithkey);
 });
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
