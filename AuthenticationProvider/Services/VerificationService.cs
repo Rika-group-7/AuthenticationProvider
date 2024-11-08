@@ -8,12 +8,14 @@ public class VerificationService : IVerificationService
 {
     private readonly ServiceBusClient _serviceBusClient;
     private readonly string _queueName;
+    private readonly string _apiKey;
 
     public VerificationService(IConfiguration configuration)
     {
         var connectionString = configuration["ServiceBus:ConnectionString"];
         _queueName = configuration["ServiceBus:QueueName"]!;
         _serviceBusClient = new ServiceBusClient(connectionString);
+        _apiKey = configuration["ApiKey:ValidateKey"]!;
     }
 
     public async Task SendVerificationRequest(string email, string token)
@@ -49,7 +51,7 @@ public class VerificationService : IVerificationService
         {
             var client = new HttpClient();
             var validateRequest = new { Email = email, Code = code };
-            var apiKey = Environment.GetEnvironmentVariable("validate-api-key");
+            var apiKey = _apiKey;
             var requestUri = $"https://verificationprivider-rika.azurewebsites.net/api/verification?code={apiKey}";
 
 

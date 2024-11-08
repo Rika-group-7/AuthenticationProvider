@@ -26,6 +26,8 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? Environment.GetEnvironmen
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("Jwt__Audience");
 var jwtSecretKey = builder.Configuration["Jwt:SecretKey"] ?? Environment.GetEnvironmentVariable("Jwt__SecretKey");
 
+//fetch api key for validation
+var apiKey = builder.Configuration["ApiKey:ValidateKey"] ?? Environment.GetEnvironmentVariable("ApiKey__ValidateKey");
 
 // Register ServiceBusClient as a singleton service
 builder.Services.AddSingleton<ServiceBusClient>(sp =>
