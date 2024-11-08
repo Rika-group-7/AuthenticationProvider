@@ -1,8 +1,8 @@
 ﻿using AuthenticationProvider.Entities;
 
-namespace AuthenticationProvider.Interfaces
+namespace AuthenticationProvider.Interfaces;
+
+public interface IWishlistRepo : IBaseRepo<WishlistEntity>
 {
-    public interface IWishlistRepo : IBaseRepo<WishlistEntity>
-    {
-    }
+    Task<WishlistEntity?> GetWishlistByUserIdAsync(string userId);
 }
