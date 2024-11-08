@@ -8,13 +8,13 @@ public class VerificationService(ServiceBusClient serviceBusClient) : IVerificat
 {
     private readonly ServiceBusClient _serviceBusClient = serviceBusClient;
 
+
     public async Task SendVerificationRequest(string email, string token)
     {
         try
         {
             await using var sender = _serviceBusClient.CreateSender("verification-queue");
 
-            // Serialize the email and token
             var emailJson = JsonSerializer.Serialize(new { Email = email, Token = token });
             var message = new ServiceBusMessage(emailJson)
             {
@@ -23,6 +23,11 @@ public class VerificationService(ServiceBusClient serviceBusClient) : IVerificat
 
             await sender.SendMessageAsync(message);
             Console.WriteLine("Verification request sent successfully.");
+        }
+        catch (ServiceBusException sbEx)
+        {
+            Console.WriteLine($"Service Bus error: {sbEx.Message}");
+            throw;
         }
         catch (Exception ex)
         {
@@ -36,12 +41,18 @@ public class VerificationService(ServiceBusClient serviceBusClient) : IVerificat
         try
         {
             var client = new HttpClient();
-
             var validateRequest = new { Email = email, Code = code };
+            var apiKey = Environment.GetEnvironmentVariable("validate-api-key");
+            var requestUri = $"https://verificationprivider-rika.azurewebsites.net/api/verification?code={apiKey}";
 
-            var requestUri = $"ValidateAPI";
 
             var response = await client.PostAsJsonAsync(requestUri, validateRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error validating verification code: {response.StatusCode} - {errorContent}");
+            }
 
             return response.IsSuccessStatusCode;
         }

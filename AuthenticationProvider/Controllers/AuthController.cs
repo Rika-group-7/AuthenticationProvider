@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static System.Net.WebRequestMethods;
 
 namespace AuthenticationProvider.Controllers;
 
@@ -65,6 +68,7 @@ public class AuthController(UserManager<UserEntity> userManager, ITokenService t
                     return BadRequest($"Failed while Sending VerificationRequest: {ex.Message}");
                 }
             }
+            else Console.WriteLine("Fail to VerificationRequest");
 
 
             // assign role based on the IsAdmin property, default is User
@@ -78,7 +82,7 @@ public class AuthController(UserManager<UserEntity> userManager, ITokenService t
             }
 
             // return ok if the user is created successfully
-            return Ok("User created successfully");
+            return Ok(new { message = "User created successfully", userId = user.Id });
         }
 
         // return bad request if the user is not created successfully
@@ -115,5 +119,26 @@ public class AuthController(UserManager<UserEntity> userManager, ITokenService t
     {
         // return ok if the user is authorized
         return Ok("SUCCESS!?");
+    }
+
+
+    [HttpPost("confirm")]
+    public async Task<IActionResult> ConfirmAccount([FromBody] ConfirmAccountModel model)
+    {
+        // Call VerificationProvider to validate the code
+        var isValid = await _verificationService.ValidateVerificationCodeAsync(model.Email, model.Code);
+
+        if (isValid)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                return Ok("Email confirmed successfully.");
+            }
+            return BadRequest("User not found.");
+        }
+        return BadRequest("Invalid verification code.");
     }
 }
