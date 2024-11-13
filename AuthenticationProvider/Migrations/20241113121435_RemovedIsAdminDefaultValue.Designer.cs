@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthenticationProvider.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241107160851_Added EmailConfirmationToken table")]
-    partial class AddedEmailConfirmationTokentable
+    [Migration("20241113121435_RemovedIsAdminDefaultValue")]
+    partial class RemovedIsAdminDefaultValue
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
